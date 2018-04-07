@@ -319,8 +319,9 @@ main()
 	  if (game_timer>100/level) {
 	   game_timer=0;
 	   c='+'; }	  
-	  if (level>9.9)
-	   break; 
+	  if (level>9.9) {
+           lives=0;		  
+	   break; }
       if (score>10) {
 	   score-=10;
 	   level+=0.1; }
