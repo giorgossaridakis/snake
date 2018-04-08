@@ -50,6 +50,8 @@ struct fruit_prototype {
 constream win1;
 
 /* local routines */  
+void initialize_variables(); 
+void draw_screen();
 void expand_snake(int quantity);
 void set_fruit_random_coords(int number);
 int check_coord_limits(int x, int y);
@@ -81,52 +83,8 @@ main()
   int game_timer=0;
   int sym;
   
-  /* set up how many fruit will play and how*/  
-  for (i=0;i<MAXFRUIT;i++) {
-   fruit[i].appearance=0;
-   fruit[i].flag=0; 
-   fruit[i].life=0; }
-   
-	fruit[0].appearance=1;
-	fruit[0].symbol=FRUIT;
-	fruit[0].timer=100;
-	fruit[0].color=4;
-	fruit[0].rarity=0;
-	fruit[0].score_add=1;
-	fruit[0].size_add=1;
-	fruit[0].life_add=0;
-	fruit[1].appearance=1;
-	fruit[1].symbol=BIGFRUIT;
-	fruit[1].timer=50;
-	fruit[1].color=4;
-	fruit[1].rarity=100;
-	fruit[1].score_add=10;
-	fruit[1].size_add=5;
-	fruit[1].life_add=0;
-    fruit[2].appearance=1;
-	fruit[2].symbol=POISON;
-	fruit[2].timer=300;
-	fruit[2].color=2;
-	fruit[2].rarity=300;
-	fruit[2].score_add=0;
-	fruit[2].size_add=0;
-	fruit[2].life_add=-1;
-	fruit[3].appearance=1;
-	fruit[3].symbol=EXPANDER;
-	fruit[3].timer=25;
-	fruit[3].color=7;
-	fruit[3].rarity=3000;
-	fruit[3].score_add=1;
-	fruit[3].size_add=50;
-	fruit[3].life_add=5;
-	fruit[4].appearance=1;
-	fruit[4].symbol=SUPERGIFT;
-	fruit[4].timer=15;
-	fruit[4].color=11;
-	fruit[4].rarity=10000;
-	fruit[4].score_add=0;
-	fruit[4].size_add=0;
-	fruit[4].life_add=50;
+  initialize_variables(); 
+ 
   
   while (lives>0) {
 	  	  
@@ -134,49 +92,19 @@ main()
     snake_size=INITIALSIZE;
     direction.x=-1;
     direction.y=0;
+    snake[0].direction=direction;
     snake[0].pt.x=40;
     snake[0].pt.y=12;
-    snake[0].symbol[0]=HEADX;
-    snake[0].symbol[1]=HEADY;
-    snake[0].direction=direction;
-     for (i=1;i<MAXLENGTH;i++) {
-      snake[i]=snake[i-1];
- 	 snake[i].symbol[0]=BODY; 
-	 snake[i].symbol[1]=BODY; }
+  
      for (i=1;i<snake_size;i++) {
       snake[i].pt.x=snake[i-1].pt.x+1;
+	  snake[i].pt.y=snake[i-1].pt.y;
 	  snake[i].direction=snake[i-1].direction; }
 	  
     /* reset counter for size expansion */  
     game_timer=0; 
 
-    /* draw the screen */
-    win1.window(1, 1, 80, 25); 
-    win1.clrscr();
-	showCursor(false);
-	win1 << setxy(7,1);
-    win1 << setattr(GREEN)	<< "score:  "; 
-	win1 << setxy(22,1); 
-	win1 << setattr(BLUE) << "level:   ";
-    win1 << setxy(37,1);
-	win1 <<setattr(RED)<< "lives:";
-    win1 << setxy(52,1);
-    win1 <<setattr(YELLOW | YELLOW)	<< "size:";
-	win1 << setxy(65,1);
-    win1 <<setattr(BLUE<<4 | YELLOW)	<< "C++ ASCII Snake";
-	win1 << setxy(1,24);
-	win1 << setattr(GREEN)	<< "  | arrow keys to move | + to add size | * level up | / level down | p pause |";
- 
-    for (i=1;i<80;i++) {
-     win1 << setxy(i,2);
-      win1 << setattr(CYAN | CYAN) << BORDER; 
- 	win1 << setxy(i,23);
-      win1 << setattr(CYAN | CYAN) << BORDER;  }
-    for (i=2;i<23;i++) {
-     win1 << setxy(1, i);  
-	 win1 << setattr(CYAN | CYAN) << BORDER; 
- 	win1 << setxy(79,i);
-	 win1 << setattr(CYAN | CYAN) << BORDER;  }
+    draw_screen();
 	 
 	/* main routine */
 	 while (c!=27 && !crash) {
@@ -320,8 +248,8 @@ main()
 	   game_timer=0;
 	   c='+'; }	  
 	  if (level>9.9) {
-           lives=0;		  
-	   break; }
+	   lives=0;
+	   break; } 
       if (score>10) {
 	   score-=10;
 	   level+=0.1; }
@@ -352,6 +280,101 @@ main()
 	 
   showCursor(true);	 
 
+}
+
+/* set up how many fruit will play and how and assign snake body parts */  
+void initialize_variables()
+{
+   int i;
+	
+	/* first set up default flags for all fruit */
+    for (i=0;i<MAXFRUIT;i++) {
+    fruit[i].appearance=0;
+    fruit[i].flag=0; 
+    fruit[i].life=0; }
+   
+     /* each .appearance is a flag, if it's set to 0, fruit will never appear */
+	fruit[0].appearance=1;
+	fruit[0].symbol=FRUIT; /* symbol is obvious */
+	fruit[0].timer=100; /* how many rounds it will stay until it is reevaluated */
+	fruit[0].color=4; /* obvious 1-7 */
+	fruit[0].rarity=0; /* rarity set to 0 means it will appear immediately after extinction */
+	fruit[0].score_add=1; /* how much it adds to the score */
+	fruit[0].size_add=1; /* to size */
+	fruit[0].life_add=0; /* to lives */
+	fruit[1].appearance=1;
+	fruit[1].symbol=BIGFRUIT;
+	fruit[1].timer=50;
+	fruit[1].color=4;
+	fruit[1].rarity=100;
+	fruit[1].score_add=10;
+	fruit[1].size_add=5;
+	fruit[1].life_add=0;
+    fruit[2].appearance=1;
+	fruit[2].symbol=POISON;
+	fruit[2].timer=300;
+	fruit[2].color=2;
+	fruit[2].rarity=300;
+	fruit[2].score_add=0;
+	fruit[2].size_add=0;
+	fruit[2].life_add=-1;
+	fruit[3].appearance=1;
+	fruit[3].symbol=EXPANDER;
+	fruit[3].timer=25;
+	fruit[3].color=7;
+	fruit[3].rarity=3000;
+	fruit[3].score_add=1;
+	fruit[3].size_add=50;
+	fruit[3].life_add=5;
+	fruit[4].appearance=1;
+	fruit[4].symbol=SUPERGIFT;
+	fruit[4].timer=15;
+	fruit[4].color=11;
+	fruit[4].rarity=10000;
+	fruit[4].score_add=0;
+	fruit[4].size_add=0;
+	fruit[4].life_add=50;
+	
+	/* lets arrange the snake parts */
+     for (i=1;i<MAXLENGTH;i++) {
+ 	  snake[i].symbol[0]=BODY; 
+	  snake[i].symbol[1]=BODY; }
+	 /* set up snake head with different character */
+	 snake[0].symbol[0]=HEADX;
+     snake[0].symbol[1]=HEADY;
+}
+
+/* draw the screen */
+void draw_screen()
+{
+   int i;	
+ 
+    win1.window(1, 1, 80, 25); 
+    win1.clrscr();
+	showCursor(false);
+	win1 << setxy(7,1);
+    win1 << setattr(GREEN)	<< "score:  "; 
+	win1 << setxy(22,1); 
+	win1 << setattr(BLUE) << "level:   ";
+    win1 << setxy(37,1);
+	win1 <<setattr(RED)<< "lives:";
+    win1 << setxy(52,1);
+    win1 <<setattr(YELLOW | YELLOW)	<< "size:";
+	win1 << setxy(65,1);
+    win1 <<setattr(BLUE<<4 | YELLOW)	<< "C++ ASCII Snake";
+	win1 << setxy(1,24);
+	win1 << setattr(GREEN)	<< "  | arrow keys to move | + to add size | * level up | / level down | p pause |";
+ 
+    for (i=1;i<80;i++) {
+     win1 << setxy(i,2);
+      win1 << setattr(CYAN | CYAN) << BORDER; 
+ 	win1 << setxy(i,23);
+      win1 << setattr(CYAN | CYAN) << BORDER;  }
+    for (i=2;i<23;i++) {
+     win1 << setxy(1, i);  
+	 win1 << setattr(CYAN | CYAN) << BORDER; 
+ 	win1 << setxy(79,i);
+	 win1 << setattr(CYAN | CYAN) << BORDER;  }
 }
 
 /* set up fruit in board and reset flag to appearance */
